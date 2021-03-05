@@ -1,14 +1,16 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import "./index.css";
-// import Whiteboard from "./Whiteboard";
+import "bootstrap/dist/css/bootstrap.min.css";
 import * as serviceWorker from "./serviceWorker";
-import Display from "./Display";
+import { Container } from "react-bootstrap";
+import RegisterTeacher from "./Register/RegisterTeacher";
+import App from "./App";
 
 ReactDOM.render(
-  <React.StrictMode>
-    <Display />
-  </React.StrictMode>,
+  <Container fluid>
+    <App />
+  </Container>,
   document.getElementById("root")
 );
 

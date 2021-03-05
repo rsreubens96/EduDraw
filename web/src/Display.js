@@ -1,10 +1,11 @@
 import React from "react";
-import Whiteboard from "./Whiteboard";
+import Whiteboard from "./Whiteboard/Whiteboard";
+import Register from "./Register/RegisterForm";
 
 function Display() {
   return (
     <div>
-      <Whiteboard></Whiteboard>
+      <Register></Register>
     </div>
   );
 }
