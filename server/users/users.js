@@ -1,11 +1,8 @@
 const { pool } = require("../config/dbConfig");
-// const passport = require('passport');
-// const initializePassport = require("../../config/passportConfig");
+const passport = require("passport");
 const express = require("express");
 const bcrypt = require("bcrypt");
 const router = express.Router();
-
-// initializePassport(passport);
 
 function register(req, res, roleid) {
   let { firstName, lastName, email, password, dateOfBirth } = req.body;
@@ -56,9 +53,19 @@ router.post("/users/students/register", async (req, res, next) => {
   register(req, res, roleid);
 });
 
-router.get("/teachers/dashboard", (req, res) => {
-  console.log("You are successfully a teacher!");
-  res.sendStatus(200);
+router.post("/users/students/login", async (req, res, next) => {
+  passport.authenticate("login-student", (err, user, info) => {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      return res
+        .status(400)
+        .send({ error: "Username or password is incorrect" });
+    }
+    console.log("boom");
+    return res.sendStatus(200);
+  })(req, res, next);
 });
 
 function isTeacher(req, res, next) {

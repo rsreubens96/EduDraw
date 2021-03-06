@@ -3,11 +3,23 @@ const http = require("http").createServer(app);
 const io = require("socket.io")(http);
 const bodyParser = require("body-parser");
 const cors = require("cors");
-
+const session = require("express-session");
+const passport = require("passport");
+const StudentLoginStrategy = require("./Passport/StudentLoginStrategy");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(cors());
+app.use(
+  session({
+    secret: "To infinity and beyond!",
+    saveUninitialized: false,
+    resave: true,
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
 
+app.use(cors());
+passport.use("login-student", StudentLoginStrategy);
 const PORT = process.env.port || 4000;
 
 io.on("connection", (socket) => {

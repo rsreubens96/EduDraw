@@ -6,6 +6,8 @@ import RegisterStudent from "./Register/RegisterStudent";
 import { Container } from "react-bootstrap";
 import Home from "./Home/Home";
 import ChooseRole from "./Register/ChooseRole";
+import LoginForm from "./Login/LoginForm";
+import Loggedin from "./Login/Loggedin";
 
 export default function App() {
   return (
@@ -22,8 +24,14 @@ export default function App() {
             <Route path="/users/students/register">
               <RegisterStudent />
             </Route>
+            <Route path="/users/students/login">
+              <LoginForm />
+            </Route>
             <Route path="/users/">
               <ChooseRole />
+            </Route>
+            <Route path="/loggedin/">
+              <Loggedin />
             </Route>
             <Route path="/">
               <Home />
