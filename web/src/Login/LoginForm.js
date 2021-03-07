@@ -7,9 +7,10 @@ import { useHistory } from "react-router-dom";
 
 const LoginForm = (props) => {
   const history = useHistory();
+  const [loginFailed, setLoginFailed] = useState(false);
   const [data, setData] = useState({
-    email: "student@gmail.com",
-    password: "password",
+    email: "",
+    password: "",
   });
 
   const handleChange = (event) => {
@@ -21,8 +22,25 @@ const LoginForm = (props) => {
     console.log(data);
   };
 
+  const HasLoginFailed = () => {
+    if (!loginFailed) {
+      return <div />;
+    }
+    return (
+      <p className="text-danger text-center">
+        The email and password that you entered did not match our records.
+        Please double-check and try again.
+      </p>
+    );
+  };
+
   const handleLogin = (e) => {
-    const url = "/users/students/login";
+    if (props.isStudent === null) {
+      return;
+    }
+    const url = props.isStudent
+      ? "/authenticate/student"
+      : "/authenticate/staff";
     axios
       .post("http://localhost:4000" + url, {
         email: data.email,
@@ -35,12 +53,14 @@ const LoginForm = (props) => {
         }
       })
       .catch((error) => {
+        setLoginFailed(true);
         console.log(error);
       });
   };
 
   return (
     <Container>
+      <HasLoginFailed />
       <Form className="login-form">
         <Form.Group>
           <Form.Label>Email address</Form.Label>
@@ -65,7 +85,7 @@ const LoginForm = (props) => {
         </Form.Group>
 
         <Button variant="primary" type="button" onClick={handleLogin}>
-          Register
+          Login
         </Button>
       </Form>
     </Container>

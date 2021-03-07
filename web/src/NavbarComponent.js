@@ -12,12 +12,12 @@ function NavbarComponent() {
           <Nav.Link href="#pricing">Pricing</Nav.Link>
         </Nav>
         <Nav className="flex-row-reverse">
-          <Nav.Link href="/users">Register</Nav.Link>
+          <Nav.Link href="/register">Register</Nav.Link>
           <NavDropdown title="Login" id="collasible-nav-dropdown">
-            <NavDropdown.Item href="/users/teachers/login">
+            <NavDropdown.Item href="/authenticate/staff">
               Staff
             </NavDropdown.Item>
-            <NavDropdown.Item href="/users/students/login">
+            <NavDropdown.Item href="/authenticate/student">
               Student
             </NavDropdown.Item>
           </NavDropdown>

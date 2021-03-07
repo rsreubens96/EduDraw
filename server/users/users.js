@@ -34,7 +34,7 @@ function register(req, res, roleid) {
   );
 }
 
-router.post("/users/teachers/register", async (req, res, next) => {
+router.post("/register/staff", async (req, res, next) => {
   console.log(req.body);
   console.log("hi");
   const query = await pool.query(
@@ -44,7 +44,7 @@ router.post("/users/teachers/register", async (req, res, next) => {
   register(req, res, roleid);
 });
 
-router.post("/users/students/register", async (req, res, next) => {
+router.post("/register/student", async (req, res, next) => {
   console.log("HI");
   const query = await pool.query(
     `SELECT roleID FROM Roles WHERE Role = 'Student'`
@@ -53,7 +53,8 @@ router.post("/users/students/register", async (req, res, next) => {
   register(req, res, roleid);
 });
 
-router.post("/users/students/login", async (req, res, next) => {
+router.post("/authenticate/student", async (req, res, next) => {
+  console.log("hi");
   passport.authenticate("login-student", (err, user, info) => {
     if (err) {
       return next(err);
@@ -63,45 +64,23 @@ router.post("/users/students/login", async (req, res, next) => {
         .status(400)
         .send({ error: "Username or password is incorrect" });
     }
-    console.log("boom");
     return res.sendStatus(200);
   })(req, res, next);
 });
 
-function isTeacher(req, res, next) {
-  if (!req.user) {
-    return res.redirect("/users/teachers/login");
-  }
-  const query = `SELECT * FROM Users
-    INNER JOIN Roles
-    on Users.roleID = Roles.roleID
-    WHERE Users.userID = $1
-    AND
-    role = 'Teacher'`;
-  pool.query(query, [req.user.id], (err, results) => {
-    if (results.rowCount > 0) {
-      return next();
+router.post("/authenticate/staff", async (req, res, next) => {
+  passport.authenticate("login-staff", (err, user, info) => {
+    console.log("hi");
+    if (err) {
+      return next(err);
     }
-    return res.redirect("/users/teachers/login");
-  });
-}
-
-function isStudent(req, res, next) {
-  if (!req.user) {
-    return res.redirect("/users/students/login");
-  }
-  const query = `SELECT * FROM Users
-    INNER JOIN Roles
-    on Users.roleID = Roles.roleID
-    WHERE Users.userID = $1
-    AND
-    role = 'Student'`;
-  pool.query(query, [req.user.id], (err, results) => {
-    if (results.rowCount > 0) {
-      return next();
+    if (!user) {
+      return res
+        .status(400)
+        .send({ error: "Username or password is incorrect" });
     }
-    return res.redirect("/users/students/login");
-  });
-}
+    return res.sendStatus(200);
+  })(req, res, next);
+});
 
 module.exports = router;

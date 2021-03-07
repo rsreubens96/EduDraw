@@ -8,10 +8,10 @@ function ChooseRole() {
         <span className="font-weight-bold">What are you registering as?</span>
       </h1>
       <Container>
-        <Button href="/users/teachers/register">I'm Staff</Button>
+        <Button href="/register/staff">I'm Staff</Button>
       </Container>
       <Container>
-        <Button href="/users/students/register">I'm a Student</Button>
+        <Button href="/register/student">I'm a Student</Button>
       </Container>
     </Jumbotron>
   );

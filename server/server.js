@@ -6,6 +6,7 @@ const cors = require("cors");
 const session = require("express-session");
 const passport = require("passport");
 const StudentLoginStrategy = require("./Passport/StudentLoginStrategy");
+const StaffLoginStrategy = require("./Passport/StaffLoginStrategy");
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(
@@ -20,6 +21,7 @@ app.use(passport.session());
 
 app.use(cors());
 passport.use("login-student", StudentLoginStrategy);
+passport.use("login-staff", StaffLoginStrategy);
 const PORT = process.env.port || 4000;
 
 io.on("connection", (socket) => {

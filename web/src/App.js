@@ -6,7 +6,8 @@ import RegisterStudent from "./Register/RegisterStudent";
 import { Container } from "react-bootstrap";
 import Home from "./Home/Home";
 import ChooseRole from "./Register/ChooseRole";
-import LoginForm from "./Login/LoginForm";
+import LoginStudent from "./Login/LoginStudent";
+import LoginStaff from "./Login/LoginStaff";
 import Loggedin from "./Login/Loggedin";
 
 export default function App() {
@@ -18,22 +19,25 @@ export default function App() {
           {/* A <Switch> looks through its children <Route>s and
             renders the first one that matches the current URL. */}
           <Switch>
-            <Route path="/users/teachers/register">
+            <Route exact path="/register/staff">
               <RegisterTeacher />
             </Route>
-            <Route path="/users/students/register">
+            <Route exact path="/register/student">
               <RegisterStudent />
             </Route>
-            <Route path="/users/students/login">
-              <LoginForm />
+            <Route exact path="/authenticate/student">
+              <LoginStudent />
             </Route>
-            <Route path="/users/">
+            <Route exact path="/authenticate/staff">
+              <LoginStaff />
+            </Route>
+            <Route exact path="/register">
               <ChooseRole />
             </Route>
-            <Route path="/loggedin/">
+            <Route exact path="/loggedin/">
               <Loggedin />
             </Route>
-            <Route path="/">
+            <Route exact path="/">
               <Home />
             </Route>
           </Switch>

@@ -3,6 +3,7 @@ import { Button, Form } from "react-bootstrap";
 import { useState } from "react";
 import axios from "axios";
 import { Container } from "react-bootstrap";
+import { useHistory } from "react-router-dom";
 
 const RegisterForm = (props) => {
   const [data, setData] = useState({
@@ -11,8 +12,9 @@ const RegisterForm = (props) => {
     email: "",
     dob: "",
     password: "",
-    hasRegistered: false,
   });
+  const [registered, setRegistered] = useState(false);
+  const history = useHistory();
 
   const handleChange = (event) => {
     const { id, value } = event.target;
@@ -30,9 +32,7 @@ const RegisterForm = (props) => {
       ...data,
       hasRegistered: true,
     }));
-    const url = props.isStudent
-      ? "/users/students/register"
-      : "users/teachers/register";
+    const url = props.isStudent ? "/register/student" : "/register/staff";
     axios
       .post("http://localhost:4000" + url, {
         firstName: data.forename,
@@ -42,12 +42,12 @@ const RegisterForm = (props) => {
         password: data.password,
       })
       .then((response) => {
-        console.log(response);
         if (response.status === 200) {
-          setData((data) => ({
-            ...data,
-            hasRegistered: true,
-          }));
+          setRegistered(true);
+          const url = props.isStudent
+            ? "/users/students/login"
+            : "/users/teachers/login";
+          history.push(url);
         }
       })
       .catch((error) => {
@@ -57,7 +57,7 @@ const RegisterForm = (props) => {
 
   const HasRegistered = () => {
     console.log(data.hasRegistered);
-    if (data.hasRegistered === true) {
+    if (registered) {
       console.log("I AM HERE");
       return <div className="text-success">Registration successful!</div>;
     }
