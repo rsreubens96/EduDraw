@@ -4,6 +4,7 @@ import { useState } from "react";
 import axios from "axios";
 import { Container } from "react-bootstrap";
 import { useHistory } from "react-router-dom";
+import jwt from "jwt-decode";
 
 const LoginForm = (props) => {
   const history = useHistory();
@@ -49,7 +50,9 @@ const LoginForm = (props) => {
       .then((response) => {
         console.log(response);
         if (response.status === 200) {
-          history.push("/loggedin");
+          const token = response.data.token;
+          localStorage.setItem("token", token);
+          window.location.reload();
         }
       })
       .catch((error) => {

@@ -3,6 +3,7 @@ const passport = require("passport");
 const express = require("express");
 const bcrypt = require("bcrypt");
 const router = express.Router();
+const jwt = require("jsonwebtoken");
 
 function register(req, res, roleid) {
   let { firstName, lastName, email, password, dateOfBirth } = req.body;
@@ -25,10 +26,14 @@ function register(req, res, roleid) {
       VALUES ($1, $2, $3, $4, $5, $6)`,
           [firstName, lastName, email, hashedPassword, dateOfBirth, roleid],
           (err, results) => {
-            console.log(err, results);
+            if (err) {
+              return res
+                .status(500)
+                .send({ error: "Oops, something went wrong." });
+            }
           }
         );
-        res.sendStatus(200);
+        return res.sendStatus(200);
       }
     }
   );
@@ -36,7 +41,6 @@ function register(req, res, roleid) {
 
 router.post("/register/staff", async (req, res, next) => {
   console.log(req.body);
-  console.log("hi");
   const query = await pool.query(
     `SELECT roleID FROM Roles WHERE Role = 'Teacher'`
   );
@@ -45,7 +49,6 @@ router.post("/register/staff", async (req, res, next) => {
 });
 
 router.post("/register/student", async (req, res, next) => {
-  console.log("HI");
   const query = await pool.query(
     `SELECT roleID FROM Roles WHERE Role = 'Student'`
   );
@@ -54,7 +57,7 @@ router.post("/register/student", async (req, res, next) => {
 });
 
 router.post("/authenticate/student", async (req, res, next) => {
-  console.log("hi");
+  console.log(req.sessionID);
   passport.authenticate("login-student", (err, user, info) => {
     if (err) {
       return next(err);
@@ -64,13 +67,26 @@ router.post("/authenticate/student", async (req, res, next) => {
         .status(400)
         .send({ error: "Username or password is incorrect" });
     }
-    return res.sendStatus(200);
+    req.login(user, function (err) {
+      if (err) {
+        return next(err);
+      }
+      const token = jwt.sign(
+        {
+          user: {
+            userid: user.userid,
+            role: "Student",
+          },
+        },
+        "cats"
+      );
+      return res.status(200).send({ token: token });
+    });
   })(req, res, next);
 });
 
 router.post("/authenticate/staff", async (req, res, next) => {
   passport.authenticate("login-staff", (err, user, info) => {
-    console.log("hi");
     if (err) {
       return next(err);
     }
@@ -79,8 +95,41 @@ router.post("/authenticate/staff", async (req, res, next) => {
         .status(400)
         .send({ error: "Username or password is incorrect" });
     }
-    return res.sendStatus(200);
+    const token = jwt.sign(
+      {
+        user: {
+          userid: user.userid,
+          role: "Staff",
+        },
+      },
+      "cats"
+    );
+    return res.status(200).send({ token: token });
   })(req, res, next);
+});
+
+router.get("/myself", async (req, res, next) => {
+  // Retrieve authorization header and retrieve the JWT from it.
+  console.log(req);
+  const token = req.headers.authorization.split(" ")[1];
+  console.log("test");
+
+  jwt.verify(token, "cats", async (err, decoded) => {
+    if (err) {
+      return res.status(401).send({ error: "JWT signature does not match" });
+    }
+    const userId = decoded.user.userid;
+    query = pool.query(
+      `SELECT firstname, lastname, email from Users where userid = $1`,
+      [userId],
+      (err, results) => {
+        if (err) {
+          return res.status(500).send({ error: "Oops, something went wrong." });
+        }
+        return res.status(200).send(results.rows[0]);
+      }
+    );
+  });
 });
 
 module.exports = router;

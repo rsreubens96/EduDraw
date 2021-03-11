@@ -9,6 +9,7 @@ import ChooseRole from "./Register/ChooseRole";
 import LoginStudent from "./Login/LoginStudent";
 import LoginStaff from "./Login/LoginStaff";
 import Loggedin from "./Login/Loggedin";
+import Profile from "./Profile/Profile";
 
 export default function App() {
   return (
@@ -34,11 +35,14 @@ export default function App() {
             <Route exact path="/register">
               <ChooseRole />
             </Route>
-            <Route exact path="/loggedin/">
+            <Router forceRefresh={true} exact path="/loggedin/">
               <Loggedin />
-            </Route>
+            </Router>
             <Route exact path="/">
               <Home />
+            </Route>
+            <Route exact path="/profile">
+              <Profile />
             </Route>
           </Switch>
         </div>

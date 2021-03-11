@@ -35,20 +35,6 @@ const StaffLoginStrategy = new LocalStrategy(
         }
       }
     );
-    passport.serializeUser((user, done) => done(null, user));
-    passport.deserializeUser((id, done) => {
-      pool.query(
-        `SELECT * FROM Users WHERE userID = $1`,
-        [id],
-        (err, results) => {
-          if (err) {
-            done(err);
-          }
-          console.log(`ID is ${results.rows[0].id}`);
-          done(null, results.rows[0]);
-        }
-      );
-    });
   }
 );
 module.exports = StaffLoginStrategy;
