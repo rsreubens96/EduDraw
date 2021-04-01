@@ -4,7 +4,6 @@ import "./index.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import * as serviceWorker from "./serviceWorker";
 import { Container } from "react-bootstrap";
-import RegisterTeacher from "./Register/RegisterTeacher";
 import App from "./App";
 
 ReactDOM.render(

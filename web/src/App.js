@@ -1,15 +1,17 @@
 import React from "react";
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Navbar from "./NavbarComponent";
 import RegisterTeacher from "./Register/RegisterTeacher";
 import RegisterStudent from "./Register/RegisterStudent";
-import { Container } from "react-bootstrap";
 import Home from "./Home/Home";
 import ChooseRole from "./Register/ChooseRole";
 import LoginStudent from "./Login/LoginStudent";
 import LoginStaff from "./Login/LoginStaff";
 import Loggedin from "./Login/Loggedin";
 import Profile from "./Profile/Profile";
+import RoomMain from "./Room/RoomMain";
+import CreateRoom from "./Room/CreateRoomForm";
+import Classroom from "./Classroom/Classroom";
 
 export default function App() {
   return (
@@ -43,6 +45,18 @@ export default function App() {
             </Route>
             <Route exact path="/profile">
               <Profile />
+            </Route>
+            <Route exact path="/rooms">
+              <RoomMain />
+            </Route>
+            <Route exact path="/rooms/create-room">
+              <CreateRoom />
+            </Route>
+            <Route exact path="/rooms/test">
+              <Classroom />
+            </Route>
+            <Route exact path="/rooms/:roomId">
+              <Classroom />
             </Route>
           </Switch>
         </div>

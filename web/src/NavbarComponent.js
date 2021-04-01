@@ -5,11 +5,12 @@ function NavbarComponent() {
   const [loggedIn, setLoggedIn] = useState(false);
   useEffect(() => {
     if (localStorage.getItem("token") === null) {
+      console.log("hi");
       setLoggedIn(false);
     } else {
       setLoggedIn(true);
     }
-  });
+  }, []);
 
   const handleLogout = (e) => {
     localStorage.removeItem("token");
@@ -35,10 +36,11 @@ function NavbarComponent() {
 
     return (
       <Nav className="flex-row-reverse">
-        <Nav.Link href="/register" onClick={handleLogout}>
+        <Nav.Link href="/" onClick={handleLogout}>
           Logout
         </Nav.Link>
         <Nav.Link href="/profile">My Account</Nav.Link>
+        <Nav.Link href="/rooms">Rooms</Nav.Link>
       </Nav>
     );
   };

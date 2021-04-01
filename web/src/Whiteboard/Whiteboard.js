@@ -1,216 +1,176 @@
-import React, { useRef, useEffect, useState } from "react";
+import React from "react";
+import Sketch from "react-p5";
 import io from "socket.io-client";
 import "./Whiteboard.css";
+import { GithubPicker } from "react-color";
+
+const socket = io("http://localhost:4000");
 
 const Whiteboard = () => {
-  const canvasRef = useRef(null);
-  const coloursRef = useRef(null);
-  const socketRef = useRef(io("http://localhost:4000"));
+  let color = "#000000";
+  let background = "#FFFFFF";
+  let strokeWeight = 20;
+  let isErasing = false;
 
-  const ColourPicker = () => {
-    const [colour, setColour] = useState("00000");
-    return (
-      <input
-        type="color"
-        value={colour}
-        onChange={(e) => {
-          setColour(e.target.value);
-          current.color = e.target.value;
-        }}
-      />
-    );
+  const setup = (p5, canvasParentRef) => {
+    // use parent to render the canvas in this ref
+    // (without that p5 will render the canvas outside of your component)
+    p5.createCanvas(1000, 700).parent(canvasParentRef);
+    p5.background(background);
+    p5.strokeWeight(strokeWeight);
+    p5.stroke(color);
+    window.p5 = p5;
   };
-  const current = {
-    color: ColourPicker.colour,
-    x: 0,
-    y: 0,
-  };
-  useEffect(() => {
-    // --------------- getContext() method returns a drawing context on the canvas-----
 
-    const canvas = canvasRef.current;
-    const context = canvas.getContext("2d");
+  const touchMoved = (p5) => {
+    const mouseX = p5.mouseX;
+    const mouseY = p5.mouseY;
+    const pmouseX = p5.pmouseX;
+    const pmouseY = p5.pmouseY;
 
-    // ----------------------- Colors --------------------------------------------------
-
-    // const colors = document.getElementsByClassName("color");
-    // // set the current color
-    // const current = {
-    //   color: "black",
-    // };
-
-    // // helper that will update the current color
-    // const onColorUpdate = (e) => {
-    //   console.log(e.target.className);
-    //   current.color = e.target.className.split(" ")[1];
-    // };
-
-    // // loop through the color elements and add the click event listeners
-    // for (let i = 0; i < colors.length; i++) {
-    //   colors[i].addEventListener("click", onColorUpdate, false);
-    // }
-    let drawing = false;
-
-    // ------------------------------- create the drawing ----------------------------
-
-    const drawPencil = (x0, y0, x1, y1, color, emit) => {
-      context.beginPath();
-      context.moveTo(x0, y0);
-      context.lineTo(x1, y1);
-      context.lineJoin = "round";
-      context.lineCap = "round";
-      context.strokeStyle = color;
-      context.lineWidth = 25;
-      context.stroke();
-      context.closePath();
-
-      if (!emit) {
-        return;
-      }
-      const width = canvas.width;
-      const height = canvas.height;
-
-      socketRef.current.emit("drawing", {
-        x0: x0 / width,
-        y0: y0 / height,
-        x1: x1 / width,
-        y1: y1 / height,
-        color,
-      });
-    };
-
-    // ---------------- mouse movement --------------------------------------
-
-    // function ev_canvas(ev) {
-    //   //console.log(ev)
-    //   const CanvPos = canvas.getBoundingClientRect(); //Global Fix cursor position bug
-    //   if (ev.clientX || ev.clientX == 0) {
-    //     // Firefox
-    //     //ev._x = ev.clientX;
-    //     ev._x = ev.clientX - CanvPos.left;
-    //     // ev._x = ev.layerX;
-    //     //ev._y = ev.clientY;
-    //     ev._y = ev.clientY - CanvPos.top;
-    //     //ev._y = ev.layerY;
-    //   } else if (ev.offsetX || ev.offsetX == 0) {
-    //     // Opera
-    //     //ev._x = ev.offsetX;
-    //     //ev._y = ev.offsetY;
-    //   }
-
-    //   // Call the event handler of the tool.
-    //   onMouseDown(ev);
-
-    //   //Hide textbox if not equals to text tool
-    // }
-
-    const onMouseDown = (e) => {
-      drawing = true;
-      const canvPos = canvas.getBoundingClientRect();
-      current.x = e.clientX - canvPos.left;
-      current.y = e.clientY - canvPos.top;
-    };
-
-    const onMouseMove = (e) => {
-      if (!drawing) {
-        return;
-      }
-      const canvPos = canvas.getBoundingClientRect();
-      drawPencil(
-        current.x,
-        current.y,
-        e.clientX - canvPos.left,
-        e.clientY - canvPos.top,
-        current.color,
-        true
-      );
-      current.x = e.clientX - canvPos.left;
-      current.y = e.clientY - canvPos.top;
-    };
-
-    const onMouseUp = (e) => {
-      if (!drawing) {
-        return;
-      }
-      const canvPos = canvas.getBoundingClientRect();
-      drawing = false;
-      drawPencil(
-        current.x,
-        current.y,
-        e.clientX - canvPos.left,
-        e.clientY - canvPos.top,
-        current.color,
-        true
-      );
-    };
-
-    // ----------- limit the number of events per second -----------------------
-
-    const throttle = (callback, delay) => {
-      let previousCall = new Date().getTime();
-      return function () {
-        const time = new Date().getTime();
-
-        if (time - previousCall >= delay) {
-          previousCall = time;
-          callback.apply(null, arguments);
-        }
-      };
-    };
-
-    // -----------------add event listeners to our canvas ----------------------
-
-    canvas.addEventListener("mousedown", onMouseDown, false);
-    canvas.addEventListener("mouseup", onMouseUp, false);
-    canvas.addEventListener("mouseout", onMouseUp, false);
-    canvas.addEventListener("mousemove", throttle(onMouseMove, 10), false);
-
-    // Touch support for mobile devices
-    canvas.addEventListener("touchstart", onMouseDown, false);
-    canvas.addEventListener("touchend", onMouseUp, false);
-    canvas.addEventListener("touchcancel", onMouseUp, false);
-    canvas.addEventListener("touchmove", throttle(onMouseMove, 10), false);
-
-    // -------------- make the canvas fill its parent component -----------------
-
-    const onResize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-
-    window.addEventListener("resize", onResize, false);
-    onResize();
-
-    // ----------------------- socket.io connection ----------------------------
-    socketRef.current.on("drawing", (data) => {
-      const width = canvas.width;
-      const height = canvas.height;
-      drawPencil(
-        data.x0 * width,
-        data.y0 * height,
-        data.x1 * width,
-        data.y1 * height,
-        data.color
-      );
+    p5.line(mouseX, mouseY, pmouseX, pmouseY);
+    socket.emit("drawing", {
+      mouseX,
+      mouseY,
+      pmouseX,
+      pmouseY,
+      color,
+      strokeWeight,
     });
+    return false;
+  };
+
+  socket.on("erasing", (erase) => {
+    console.log(erase);
+    if (!erase.erase) {
+      isErasing = false;
+      return window.p5.noErase();
+    }
+    isErasing = true;
+    return window.p5.erase();
   });
 
-  // ------------- The Canvas and color elements --------------------------
+  socket.on("drawing", (data) => {
+    window.p5.stroke(data.color);
+    console.log("Stroke weight is " + strokeWeight);
+    window.p5.strokeWeight(data.strokeWeight);
+    window.p5.line(data.mouseX, data.mouseY, data.pmouseX, data.pmouseY);
+    window.p5.stroke(color);
+    window.p5.strokeWeight(strokeWeight);
+  });
+
+  // socketRef.current.on("drawing", (data) => {
+  //   console.log(this.p5);
+  // });
+  const handleColourChange = (e) => {
+    color = e.hex;
+    window.p5.stroke(e.hex);
+  };
+
+  const handlePencil = (e) => {
+    if (isErasing) {
+      socket.emit("erasing", {
+        erase: false,
+      });
+      window.p5.noErase();
+      isErasing = false;
+    }
+    console.log(color);
+    window.p5.stroke(color);
+  };
+
+  const handleEraser = (e) => {
+    isErasing = true;
+    socket.emit("erasing", {
+      erase: true,
+    });
+    window.p5.erase();
+  };
+
+  const handleStrokeSize = (e) => {
+    strokeWeight = 160;
+    window.p5.strokeWeight(160);
+  };
+
+  const handleClear = (e) => {
+    window.p5.clear();
+  };
 
   return (
     <div>
-      <div className="pad">
-        <canvas ref={canvasRef} className="whiteboard" />
+      <div
+        className="btn-toolbar"
+        id="toolbar"
+        role="toolbar"
+        aria-label="Toolbar with button groups"
+      >
+        <div className="btn-group mr-2" role="group" aria-label="First group">
+          <GithubPicker color={color} onChange={handleColourChange} />
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={handlePencil}
+          >
+            Pencil
+          </button>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={handleEraser}
+          >
+            Eraser
+          </button>
+          <button
+            type="button"
+            className="btn btn-danger"
+            onClick={handleClear}
+          >
+            Clear
+          </button>
+        </div>
+        <div className="btn-group mr-2" role="group" aria-label="Second group">
+          <button type="button" className="btn btn-secondary">
+            5
+          </button>
+          <button type="button" className="btn btn-secondary">
+            6
+          </button>
+          <button type="button" className="btn btn-secondary">
+            7
+          </button>
+        </div>
+        <div className="btn-group" role="group" aria-label="Third group">
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={handleStrokeSize}
+          >
+            8
+          </button>
+        </div>
+      </div>
+      <div id="sketch">
+        <Sketch setup={setup} touchMoved={touchMoved} />
       </div>
 
-      <div ref={coloursRef} className="colors">
-        <div className="color black" />
-        <div className="color red" />
-        <div className="color green" />
-        <div className="color blue" />
-        <div className="color yellow" />
-      </div>
-      <ColourPicker></ColourPicker>
+      {/* <div className="slide">
+        <iframe
+          src="https://onedrive.live.com/embed?cid=697F5BAC0D135DF4&amp;resid=697F5BAC0D135DF4%212827&amp;authkey=APBLYqEqo4CcBtY&amp;em=2&amp;wdAr=1.7777777777777777"
+          width="300px"
+          height="300px"
+          frameborder="0"
+        >
+          This is an embedded{" "}
+          <a target="_blank" href="https://office.com">
+            Microsoft Office
+          </a>{" "}
+          presentation, powered by{" "}
+          <a target="_blank" href="https://office.com/webapps">
+            Office
+          </a>
+          .
+        </iframe>
+      </div> */}
     </div>
   );
 };
