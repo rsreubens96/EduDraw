@@ -70,15 +70,33 @@ router.post("/authenticate/student", async (req, res, next) => {
     if (err) {
       return next(err);
     }
-    const token = jwt.sign(
+
+    const accessToken = jwt.sign(
       {
         user: {
           userid: user.userid,
           role: "Student",
         },
       },
-      config.JWT_SECRET
+      config.JWT_SECRET,
+      {
+        expiresIn: "15m",
+      }
     );
+
+    const refreshToken = jwt.sign(
+      {
+        user: {
+          userid: user.userid,
+          role: "Student",
+        },
+      },
+      config.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
+
     return res.status(200).send({ token: token });
   })(req, res, next);
 });

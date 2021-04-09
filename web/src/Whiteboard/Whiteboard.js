@@ -1,12 +1,11 @@
 import React from "react";
 import Sketch from "react-p5";
-import io from "socket.io-client";
 import "./Whiteboard.css";
 import { GithubPicker } from "react-color";
 
-const socket = io("http://localhost:4000");
-
-const Whiteboard = () => {
+const Whiteboard = ({ roomId, socket }) => {
+  console.log("hi");
+  socket.emit("hello", roomId);
   let color = "#000000";
   let background = "#FFFFFF";
   let strokeWeight = 20;
@@ -15,7 +14,7 @@ const Whiteboard = () => {
   const setup = (p5, canvasParentRef) => {
     // use parent to render the canvas in this ref
     // (without that p5 will render the canvas outside of your component)
-    p5.createCanvas(1000, 700).parent(canvasParentRef);
+    p5.createCanvas(1000, 600).parent(canvasParentRef);
     p5.background(background);
     p5.strokeWeight(strokeWeight);
     p5.stroke(color);
@@ -30,6 +29,7 @@ const Whiteboard = () => {
 
     p5.line(mouseX, mouseY, pmouseX, pmouseY);
     socket.emit("drawing", {
+      roomId,
       mouseX,
       mouseY,
       pmouseX,
@@ -70,6 +70,7 @@ const Whiteboard = () => {
   const handlePencil = (e) => {
     if (isErasing) {
       socket.emit("erasing", {
+        roomId: roomId,
         erase: false,
       });
       window.p5.noErase();
@@ -82,6 +83,7 @@ const Whiteboard = () => {
   const handleEraser = (e) => {
     isErasing = true;
     socket.emit("erasing", {
+      roomId: roomId,
       erase: true,
     });
     window.p5.erase();

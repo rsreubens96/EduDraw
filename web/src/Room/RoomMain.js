@@ -1,16 +1,8 @@
 import React, { useState } from "react";
 import { Form, Container, Button, Row, Col, Jumbotron } from "react-bootstrap";
-import { withRouter } from "react-router-dom";
 import "../App.css";
 import "./RoomMain.css";
 import axios from "axios";
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Link,
-  useParams,
-} from "react-router-dom";
 import { useHistory } from "react-router-dom";
 
 const RoomMain = () => {
@@ -30,37 +22,44 @@ const RoomMain = () => {
   };
 
   const handleGo = () => {
-    if (roomId != "") {
-      const token = localStorage.getItem("token");
-      // If user is not logged in
-      if (token === null) {
-        return;
-      }
-      axios
-        .get(`http://localhost:4000/rooms/${roomId}`, {
-          headers: { Authorization: "Bearer " + token },
-        })
-        .then((res) => {
-          if (res.status === 200) {
-            // If room does not exist
-            if (res.data.error) {
-              return setError(res.data.error);
-            }
-            return history.push({
-              pathname: `/rooms/${roomId}`,
-              state: { room: "roomId" },
-            });
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    const regex = new RegExp(
+      "([a-zA-Z0-9]{8})-([a-zA-Z0-9]{4})-([a-zA-Z0-9]{4})-([a-zA-Z0-9]{4})-([a-zA-Z0-9]{12})"
+    );
+    if (!regex.test(roomId)) {
+      return setError("The room ID entered is not a valid room ID.");
     }
+    console.log("hi");
+    const token = localStorage.getItem("token");
+    // If user is not logged in
+    if (token === null) {
+      return;
+    }
+    axios
+      .get(`http://localhost:4000/rooms/${roomId}`, {
+        headers: { Authorization: "Bearer " + token },
+      })
+      .then((res) => {
+        if (res.status === 200) {
+          // If room does not exist
+          if (res.data.error) {
+            return setError(res.data.error);
+          }
+          return history.push({
+            pathname: `/rooms/${roomId}`,
+            state: { roomId: roomId },
+          });
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   return (
     <Container>
       <Jumbotron>
-        <h1>Rooms</h1>
+        <div style={{ textAlign: "center" }}>
+          <h1>Rooms</h1>
+        </div>
       </Jumbotron>
       <div className="centered">
         <RenderError />

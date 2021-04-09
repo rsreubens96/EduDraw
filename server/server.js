@@ -11,7 +11,6 @@ const jwt = require("jsonwebtoken");
 const config = require("dotenv").config().parsed;
 
 const { pool } = require("./config/dbConfig");
-const bcrypt = require("bcrypt");
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -24,17 +23,56 @@ app.use(cors());
 const PORT = process.env.port || 4000;
 
 io.on("connection", (socket) => {
-  console.log("User has connected " + socket.id);
+  let socketRoomID = "";
+  socket.on("hello", (roomID) => {
+    socket.join(roomID);
+    socketRoomID = roomID;
+  });
+
   socket.on("drawing", (data) => {
-    socket.broadcast.emit("drawing", data);
+    io.to(socketRoomID).emit("drawing", data);
   });
 
-  socket.on("erasing", (erase) => {
-    socket.broadcast.emit("erasing", erase);
+  socket.on("erasing", (data) => {
+    io.to(socketRoomID).emit("erasing", data);
   });
 
-  socket.on("test", () => {
-    console.log("test");
+  // WebRTC stuff
+
+  socket.on("getAllClients", (data) => {
+    io.in(socketRoomID).clients((err, clients) => {
+      console.log(socket.id);
+      console.log(clients);
+      if (clients.length > 0) {
+        io.to(socketRoomID).emit("receiveClients", clients);
+      }
+    });
+  });
+
+  socket.on("signalToClient", (data) => {
+    // socket.to(data.roomId).emit("signal", data);
+    console.log(socket.id + " is sending a signal to " + data.receiverID);
+    io.to(data.receiverID).emit("userJoined", {
+      signal: data.signal,
+      callerID: data.callerID,
+    });
+  });
+
+  socket.on("returningSignal", (data) => {
+    console.log(socket.id + " is returning their signal to " + data.callerID);
+    io.to(data.callerID).emit("receivingReturnedSignal", {
+      signal: data.signal,
+      id: socket.id,
+    });
+  });
+
+  socket.on("disconnect", (data) => {
+    console.log(socket.id + " has disconnected");
+    io.in(socketRoomID).clients((err, clients) => {
+      if (clients.length > 0) {
+        io.to(socketRoomID).emit("receiveClients", clients);
+      }
+    });
   });
 });
 
