@@ -1,5 +1,7 @@
 #sketch {
   margin: 10px;
+  border-color: 1px;
+  border-style: double;
 }
 
 #toolbar {

@@ -45,8 +45,8 @@ const RegisterForm = (props) => {
         if (response.status === 200) {
           setRegistered(true);
           const url = props.isStudent
-            ? "/users/students/login"
-            : "/users/teachers/login";
+            ? "/authenticate/student"
+            : "/authenticate/staff";
           history.push(url);
         }
       })

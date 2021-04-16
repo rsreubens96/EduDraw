@@ -52,6 +52,7 @@ const LoginForm = (props) => {
           const token = response.data.token;
           localStorage.setItem("token", token);
           history.push("/profile");
+          history.go();
         }
       })
       .catch((error) => {

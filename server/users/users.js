@@ -80,24 +80,11 @@ router.post("/authenticate/student", async (req, res, next) => {
       },
       config.JWT_SECRET,
       {
-        expiresIn: "15m",
-      }
-    );
-
-    const refreshToken = jwt.sign(
-      {
-        user: {
-          userid: user.userid,
-          role: "Student",
-        },
-      },
-      config.JWT_SECRET,
-      {
         expiresIn: "7d",
       }
     );
 
-    return res.status(200).send({ token: token });
+    return res.status(200).send({ token: accessToken });
   })(req, res, next);
 });
 
@@ -111,16 +98,19 @@ router.post("/authenticate/staff", async (req, res, next) => {
         .status(400)
         .send({ error: "Username or password is incorrect" });
     }
-    const token = jwt.sign(
+    const accessToken = jwt.sign(
       {
         user: {
           userid: user.userid,
           role: "Staff",
         },
       },
-      config.JWT_SECRET
+      config.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      }
     );
-    return res.status(200).send({ token: token });
+    return res.status(200).send({ token: accessToken });
   })(req, res, next);
 });
 

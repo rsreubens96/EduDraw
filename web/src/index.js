@@ -7,9 +7,9 @@ import { Container } from "react-bootstrap";
 import App from "./App";
 
 ReactDOM.render(
-  <Container fluid>
+  <React.StrictMode>
     <App />
-  </Container>,
+  </React.StrictMode>,
   document.getElementById("root")
 );
 

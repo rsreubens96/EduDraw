@@ -2,6 +2,7 @@ import React from "react";
 import Sketch from "react-p5";
 import "./Whiteboard.css";
 import { GithubPicker } from "react-color";
+import { Container } from "react-bootstrap";
 
 const Whiteboard = ({ roomId, socket }) => {
   console.log("hi");
@@ -29,7 +30,6 @@ const Whiteboard = ({ roomId, socket }) => {
 
     p5.line(mouseX, mouseY, pmouseX, pmouseY);
     socket.emit("drawing", {
-      roomId,
       mouseX,
       mouseY,
       pmouseX,
@@ -70,7 +70,6 @@ const Whiteboard = ({ roomId, socket }) => {
   const handlePencil = (e) => {
     if (isErasing) {
       socket.emit("erasing", {
-        roomId: roomId,
         erase: false,
       });
       window.p5.noErase();
@@ -83,7 +82,6 @@ const Whiteboard = ({ roomId, socket }) => {
   const handleEraser = (e) => {
     isErasing = true;
     socket.emit("erasing", {
-      roomId: roomId,
       erase: true,
     });
     window.p5.erase();
@@ -99,81 +97,68 @@ const Whiteboard = ({ roomId, socket }) => {
   };
 
   return (
-    <div>
-      <div
-        className="btn-toolbar"
-        id="toolbar"
-        role="toolbar"
-        aria-label="Toolbar with button groups"
-      >
-        <div className="btn-group mr-2" role="group" aria-label="First group">
-          <GithubPicker color={color} onChange={handleColourChange} />
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={handlePencil}
-          >
-            Pencil
-          </button>
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={handleEraser}
-          >
-            Eraser
-          </button>
-          <button
-            type="button"
-            className="btn btn-danger"
-            onClick={handleClear}
-          >
-            Clear
-          </button>
-        </div>
-        <div className="btn-group mr-2" role="group" aria-label="Second group">
-          <button type="button" className="btn btn-secondary">
-            5
-          </button>
-          <button type="button" className="btn btn-secondary">
-            6
-          </button>
-          <button type="button" className="btn btn-secondary">
-            7
-          </button>
-        </div>
-        <div className="btn-group" role="group" aria-label="Third group">
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={handleStrokeSize}
-          >
-            8
-          </button>
-        </div>
-      </div>
-      <div id="sketch">
-        <Sketch setup={setup} touchMoved={touchMoved} />
-      </div>
-
-      {/* <div className="slide">
-        <iframe
-          src="https://onedrive.live.com/embed?cid=697F5BAC0D135DF4&amp;resid=697F5BAC0D135DF4%212827&amp;authkey=APBLYqEqo4CcBtY&amp;em=2&amp;wdAr=1.7777777777777777"
-          width="300px"
-          height="300px"
-          frameborder="0"
+    <Container>
+      <div>
+        <div
+          className="btn-toolbar"
+          id="toolbar"
+          role="toolbar"
+          aria-label="Toolbar with button groups"
         >
-          This is an embedded{" "}
-          <a target="_blank" href="https://office.com">
-            Microsoft Office
-          </a>{" "}
-          presentation, powered by{" "}
-          <a target="_blank" href="https://office.com/webapps">
-            Office
-          </a>
-          .
-        </iframe>
-      </div> */}
-    </div>
+          <div className="btn-group mr-2" role="group" aria-label="First group">
+            <GithubPicker color={color} onChange={handleColourChange} />
+            <button
+              type="button"
+              className="btn btn-primary"
+              onClick={handlePencil}
+            >
+              Pencil
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={handleEraser}
+            >
+              Eraser
+            </button>
+            <button
+              type="button"
+              className="btn btn-danger"
+              onClick={handleClear}
+            >
+              Clear
+            </button>
+          </div>
+          <div
+            className="btn-group mr-2"
+            role="group"
+            aria-label="Second group"
+          >
+            <button type="button" className="btn btn-secondary">
+              5
+            </button>
+            <button type="button" className="btn btn-secondary">
+              6
+            </button>
+            <button type="button" className="btn btn-secondary">
+              7
+            </button>
+          </div>
+          <div className="btn-group" role="group" aria-label="Third group">
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={handleStrokeSize}
+            >
+              8
+            </button>
+          </div>
+        </div>
+        <div id="sketch">
+          <Sketch setup={setup} touchMoved={touchMoved} />
+        </div>
+      </div>
+    </Container>
   );
 };
 

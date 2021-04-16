@@ -10,7 +10,7 @@ function NavbarComponent() {
     } else {
       setLoggedIn(true);
     }
-  }, []);
+  }, [loggedIn]);
 
   const handleLogout = (e) => {
     localStorage.removeItem("token");
@@ -46,14 +46,13 @@ function NavbarComponent() {
   };
 
   return (
-    <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
-      <Navbar.Brand href="/">EduDraw</Navbar.Brand>
-      <Navbar.Toggle aria-controls="responsive-navbar-nav" />
-      <Navbar.Collapse id="responsive-navbar-nav">
+    <div>
+      <Navbar bg="dark" variant="dark">
+        <Navbar.Brand href="/">EduDraw</Navbar.Brand>
         <Nav className="mr-auto"></Nav>
         <DisplayLogout />
-      </Navbar.Collapse>
-    </Navbar>
+      </Navbar>
+    </div>
   );
 }
 

@@ -65,28 +65,29 @@ const CreateRoomForm = (props) => {
 
   return (
     <Container>
-      <HasCreateFailed />
-      <Form className="login-form">
-        <Form.Group>
-          <Form.Label>Room Name</Form.Label>
-          <Form.Control
-            type="text"
-            placeholder="Enter room name"
-            id="roomName"
-            defaultValue={data.roomName}
-            onChange={handleChange}
-          />
-          <Form.Label>Room Description</Form.Label>
-          <FormControl
-            as="textarea"
-            placeholder="What's the room going to be about?"
-            id="roomDescription"
-            defaultValue={data.roomDescription}
-            onChange={handleChange}
-          />
-        </Form.Group>
+      <div className="card text-center">
+        <HasCreateFailed />
+        <Form className="login-form">
+          <Form.Group>
+            <Form.Label>Room Name</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Enter room name"
+              id="roomName"
+              defaultValue={data.roomName}
+              onChange={handleChange}
+            />
+            <Form.Label>Room Description</Form.Label>
+            <FormControl
+              as="textarea"
+              placeholder="What's the room going to be about?"
+              id="roomDescription"
+              defaultValue={data.roomDescription}
+              onChange={handleChange}
+            />
+          </Form.Group>
 
-        {/* <Form.Group>
+          {/* <Form.Group>
           <Form.Label>Room Password</Form.Label>
           <Form.Control
             type="password"
@@ -97,10 +98,11 @@ const CreateRoomForm = (props) => {
           />
         </Form.Group> */}
 
-        <Button variant="primary" type="button" onClick={handleCreate}>
-          Create
-        </Button>
-      </Form>
+          <Button variant="primary" type="button" onClick={handleCreate}>
+            Create
+          </Button>
+        </Form>
+      </div>
     </Container>
   );
 };

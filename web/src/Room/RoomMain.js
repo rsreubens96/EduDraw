@@ -55,33 +55,35 @@ const RoomMain = () => {
       });
   };
   return (
-    <Container>
+    <div>
       <Jumbotron>
         <div style={{ textAlign: "center" }}>
-          <h1>Rooms</h1>
+          <h1 className="display-4">Rooms</h1>
         </div>
       </Jumbotron>
-      <div className="centered">
-        <RenderError />
-        <div className="input-group">
-          <Form.Control
-            size="lg"
-            type="text"
-            placeholder="Room ID"
-            onChange={onChangeHandler}
-            defaultValue={roomId}
-          />
-          <Button className="btn-default" onClick={handleGo}>
-            Go!
-          </Button>
+      <Container>
+        <div className="centered">
+          <RenderError />
+          <div className="input-group">
+            <Form.Control
+              size="lg"
+              type="text"
+              placeholder="Room ID"
+              onChange={onChangeHandler}
+              defaultValue={roomId}
+            />
+            <Button className="btn-default" onClick={handleGo}>
+              Go!
+            </Button>
+          </div>
+          <div style={{ textAlign: "center", marginTop: "20px" }}>
+            <Button className="btn-lg" href="/rooms/create-room">
+              Create Room
+            </Button>
+          </div>
         </div>
-        <div style={{ textAlign: "center", marginTop: "20px" }}>
-          <Button className="btn-lg" href="/rooms/create-room">
-            Create Room
-          </Button>
-        </div>
-      </div>
-    </Container>
+      </Container>
+    </div>
   );
 };
 

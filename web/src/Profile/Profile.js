@@ -3,6 +3,9 @@ import jwt from "jwt-decode";
 import axios from "axios";
 import Spinner from "react-bootstrap/Spinner";
 import _ from "lodash";
+import "./Profile.css";
+import { Container, Row, Col, Button } from "react-bootstrap";
+
 const Profile = () => {
   const [userInfo, setUserInfo] = useState({});
 
@@ -21,8 +24,12 @@ const Profile = () => {
         console.log(res);
         if (res.status === 200) {
           setUserInfo({
-            firstName: res.data.firstname,
-            lastName: res.data.lastname,
+            firstName:
+              res.data.firstname.charAt(0).toUpperCase() +
+              res.data.firstname.slice(1),
+            lastName:
+              res.data.lastname.charAt(0).toUpperCase() +
+              res.data.lastname.slice(1),
             email: res.data.email,
             role: jwt(token).user.role,
           });
@@ -45,30 +52,43 @@ const Profile = () => {
       </Spinner>
     );
   }
+
+  const name = userInfo.firstName + " " + userInfo.lastName;
+
   return (
-    <div>
-      <h1>
-        {" "}
-        Hello {userInfo.firstName + " " + userInfo.lastName}, you are a{" "}
-        {userInfo.role}{" "}
-      </h1>
-      <iframe
-        src="https://onedrive.live.com/embed?cid=697F5BAC0D135DF4&amp;resid=697F5BAC0D135DF4%212827&amp;authkey=APBLYqEqo4CcBtY&amp;em=2&amp;wdAr=1.7777777777777777"
-        width="350px"
-        height="221px"
-        frameborder="0"
-      >
-        This is an embedded{" "}
-        <a target="_blank" href="https://office.com">
-          Microsoft Office
-        </a>{" "}
-        presentation, powered by{" "}
-        <a target="_blank" href="https://office.com/webapps">
-          Office
-        </a>
-        .
-      </iframe>
-    </div>
+    <Container className="text-center">
+      <div className="card">
+        <h1 className="display-1">{name}</h1>
+        <img
+          src="user-solid.svg"
+          alt={name}
+          style={{ height: "200px", width: "100%" }}
+        />
+        <Container style={{ padding: "20px" }}>
+          <Button>Upload a picture</Button>
+          <Row>
+            <Col>
+              <b>Full Name</b>
+            </Col>
+            <Col>{name}</Col>
+          </Row>
+          <Row>
+            <Col>
+              <b>Role</b>
+            </Col>
+            <Col>{userInfo.role}</Col>
+          </Row>
+          <Row>
+            <Col>
+              <b>Age</b>
+            </Col>
+            <Col>{name}</Col>
+          </Row>
+        </Container>
+      </div>
+
+      <Button>Edit Profile</Button>
+    </Container>
   );
 };
 

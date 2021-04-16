@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import Navbar from "./NavbarComponent";
 import RegisterTeacher from "./Register/RegisterTeacher";
@@ -7,7 +7,6 @@ import Home from "./Home/Home";
 import ChooseRole from "./Register/ChooseRole";
 import LoginStudent from "./Login/LoginStudent";
 import LoginStaff from "./Login/LoginStaff";
-import Loggedin from "./Login/Loggedin";
 import Profile from "./Profile/Profile";
 import RoomMain from "./Room/RoomMain";
 import CreateRoom from "./Room/CreateRoomForm";
@@ -37,9 +36,6 @@ export default function App() {
             <Route exact path="/register">
               <ChooseRole />
             </Route>
-            <Router forceRefresh={true} exact path="/loggedin/">
-              <Loggedin />
-            </Router>
             <Route exact path="/">
               <Home />
             </Route>

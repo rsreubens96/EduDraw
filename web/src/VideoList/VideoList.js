@@ -1,37 +1,53 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Container } from "react-bootstrap";
+import { Container, Row, Col } from "react-bootstrap";
 import styled from "styled-components";
 const Peer = require("simple-peer");
 const wrtc = require("wrtc");
 
 const StyledVideo = styled.video`
-  height: 200px;
-  width: 200px;
+  height: 50px;
+  width: 50px;
+  background-image: url(${process.env.PUBLIC_URL + "/user-solid.svg"});
 `;
-
-const Video = ({ index, peer }) => {
+const Video = ({ index, peer, peersRef }) => {
   const ref = useRef();
+
+  // const video = <StyledVideo alt="user-solid" playsInline autoPlay ref={ref} />;
 
   useEffect(() => {
     peer.peer.on("stream", (stream) => {
       ref.current.srcObject = stream;
     });
+
+    peer.peer.on("close", () => {
+      ref.current.srcObject = null;
+      if (peersRef.current != null) {
+        peersRef.current.splice(index, 1);
+      }
+    });
   }, []);
 
-  return <StyledVideo playsInline autoPlay ref={ref} />;
+  return (
+    <div className="card">
+      <div className="text-center">
+        <StyledVideo alt="user-solid" playsInline autoPlay ref={ref} />;
+        <h1>test name</h1>
+      </div>
+    </div>
+  );
+  // return null;
 };
 
 const VideoList = ({ socket, roomId }) => {
-  const [stream, setStream] = useState();
+  const peersRef = useRef([]);
   const [peers, setPeers] = useState([]);
   const userVideo = useRef();
-  const peersRef = useRef([]);
   const joining = useRef(true);
+
   useEffect(() => {
     navigator.mediaDevices
-      .getUserMedia({ video: true, audio: true })
+      .getUserMedia({ video: false, audio: true })
       .then((stream) => {
-        setStream(stream);
         if (userVideo.current) {
           userVideo.current.srcObject = stream;
         }
@@ -80,17 +96,23 @@ const VideoList = ({ socket, roomId }) => {
     console.log("I AM CREATING A PEER CONNECTION TO " + receiverID);
     const peer = new Peer({
       initiator: true,
-      trickle: true,
-      // wrtc: wrtc,
-      config: {
-        iceServers: [
-          {
-            username: "rsreubens96@gmail.com",
-            credential: "CvpbG9Cw73Pot4",
-            urls: ["turn:numb.viagenie.ca:3478"],
-          },
-        ],
-      },
+      trickle: false,
+      reconnectTimer: 100,
+      iceTransportPolicy: "relay",
+      // config: {
+      //   iceServers: [
+      //     {
+      //       urls: "stun:numb.viagenie.ca:3478",
+      //       username: "rsreubens96@gmail.com",
+      //       credential: "CvpbG9Cw73Pot4",
+      //     },
+      //     {
+      //       urls: "turn:numb.viagenie.ca:3478",
+      //       username: "rsreubens96@gmail.com",
+      //       credential: "CvpbG9Cw73Pot4",
+      //     },
+      //   ],
+      // },
       stream,
     });
 
@@ -103,23 +125,34 @@ const VideoList = ({ socket, roomId }) => {
       console.log(err);
     });
 
+    // setVideos((videos) => [
+    //   ...videos,
+    //   <StyledVideo playsInline autoPlay ref={stream}></StyledVideo>,
+    // ]);
+
     return peer;
   };
 
   const addPeer = (incomingSignal, callerID, stream) => {
     const peer = new Peer({
       initiator: false,
-      trickle: true,
-      // wrtc: wrtc,
-      config: {
-        iceServers: [
-          {
-            username: "rsreubens96@gmail.com",
-            credential: "CvpbG9Cw73Pot4",
-            urls: ["turn:numb.viagenie.ca:3478"],
-          },
-        ],
-      },
+      trickle: false,
+      reconnectTimer: 100,
+      iceTransportPolicy: "relay",
+      // config: {
+      //   iceServers: [
+      //     {
+      //       urls: "stun:numb.viagenie.ca:3478",
+      //       username: "rsreubens96@gmail.com",
+      //       credential: "CvpbG9Cw73Pot4",
+      //     },
+      //     {
+      //       urls: "turn:numb.viagenie.ca:3478",
+      //       username: "rsreubens96@gmail.com",
+      //       credential: "CvpbG9Cw73Pot4",
+      //     },
+      //   ],
+      // },
       stream,
     });
 
@@ -136,14 +169,41 @@ const VideoList = ({ socket, roomId }) => {
     return peer;
   };
 
+  // const RenderPeers = () => {
+  //   console.log("RENDER PEERS");
+  //   console.log(videos);
+  //   if (videos.current.length > 0) {
+  //     console.log("Render peers 2");
+  //     // peersRef.current.map((peer, index) => {
+  //     //   return <Video key={index} peer={peer} />;
+  //     // });
+  //     videos.current.map((video) => {
+  //       console.log(video);
+  //       return video;
+  //     });
+  //   }
+  //   return null;
+  // };
+
   return (
     <div>
-      <StyledVideo playsInline muted ref={userVideo} autoPlay />
-      <li>
+      <Row xs={4} md={4}>
+        <Col>
+          <div className="card">
+            <div className="text-center">
+              <StyledVideo playsInline muted ref={userVideo} autoPlay />
+              <h1>test name</h1>
+            </div>
+          </div>
+        </Col>
         {peersRef.current.map((peer, index) => {
-          return <Video key={index} peer={peer} />;
+          return (
+            <Col>
+              <Video key={index} peer={peer} peersRef={peersRef} />
+            </Col>
+          );
         })}
-      </li>
+      </Row>
     </div>
   );
 };
