@@ -5,8 +5,6 @@ import { GithubPicker } from "react-color";
 import { Container } from "react-bootstrap";
 
 const Whiteboard = ({ roomId, socket }) => {
-  console.log("hi");
-  socket.emit("hello", roomId);
   let color = "#000000";
   let background = "#FFFFFF";
   let strokeWeight = 20;
@@ -41,7 +39,6 @@ const Whiteboard = ({ roomId, socket }) => {
   };
 
   socket.on("erasing", (erase) => {
-    console.log(erase);
     if (!erase.erase) {
       isErasing = false;
       return window.p5.noErase();
@@ -52,7 +49,6 @@ const Whiteboard = ({ roomId, socket }) => {
 
   socket.on("drawing", (data) => {
     window.p5.stroke(data.color);
-    console.log("Stroke weight is " + strokeWeight);
     window.p5.strokeWeight(data.strokeWeight);
     window.p5.line(data.mouseX, data.mouseY, data.pmouseX, data.pmouseY);
     window.p5.stroke(color);
@@ -75,7 +71,6 @@ const Whiteboard = ({ roomId, socket }) => {
       window.p5.noErase();
       isErasing = false;
     }
-    console.log(color);
     window.p5.stroke(color);
   };
 

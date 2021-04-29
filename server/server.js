@@ -22,11 +22,30 @@ app.use(cors());
 // app.use(passport.session());
 const PORT = process.env.port || 4000;
 
+let rooms = {};
+
 io.on("connection", (socket) => {
-  let socketRoomID = "";
-  socket.on("hello", (roomID) => {
-    socket.join(roomID);
-    socketRoomID = roomID;
+  let socketRoomID = "hi";
+  socket.on("hello", (data) => {
+    console.log("CONNECTION");
+    socket.join(data.roomID);
+    socketRoomID = data.roomID;
+    console.log("AFTER");
+
+    let user = {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      role: data.role,
+      socketID: socket.id,
+    };
+
+    // console.log(rooms[data.roomID].[data.socketID]);
+    if (!rooms[data.roomID]) {
+      rooms[data.roomID] = {};
+    }
+    rooms[data.roomID][socket.id] = user;
+    // console.log(rooms[data.roomID]["asdasdasd"]);
+    console.log(rooms);
   });
 
   socket.on("drawing", (data) => {
@@ -38,13 +57,19 @@ io.on("connection", (socket) => {
   });
 
   // WebRTC stuff
-
   socket.on("getAllClients", (data) => {
+    console.log("GET ALL CLINETS");
+    console.log(socketRoomID);
     io.in(socketRoomID).clients((err, clients) => {
-      console.log(socket.id);
-      console.log(clients);
+      const dataToSend = [];
+      clients.forEach((client) => {
+        console.log(rooms[socketRoomID][client]);
+        dataToSend.push(rooms[socketRoomID][client]);
+      });
+      console.log("DATA TO SEND IS");
+      console.log(dataToSend);
       if (clients.length > 0) {
-        io.to(socketRoomID).emit("receiveClients", clients);
+        io.to(socketRoomID).emit("receiveClients", dataToSend);
       }
     });
   });
@@ -55,6 +80,9 @@ io.on("connection", (socket) => {
     io.to(data.receiverID).emit("userJoined", {
       signal: data.signal,
       callerID: data.callerID,
+      firstName: rooms[socketRoomID][data.callerID].firstName,
+      lastName: rooms[socketRoomID][data.callerID].lastName,
+      role: rooms[socketRoomID][data.callerID].role,
     });
   });
 
@@ -73,6 +101,9 @@ io.on("connection", (socket) => {
         io.to(socketRoomID).emit("receiveClients", clients);
       }
     });
+    if (rooms[socketRoomID]) {
+      delete rooms[socketRoomID][socket.id];
+    }
   });
 });
 
@@ -85,7 +116,6 @@ app.use(users);
 
 app.post("/rooms/create-room/", (req, res, next) => {
   const { roomUUID, roomName, roomDescription } = req.body;
-  console.log(req.body);
   pool.query(
     `SELECT * FROM Rooms WHERE roomname = $1`,
     [roomName],

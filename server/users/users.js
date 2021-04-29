@@ -41,7 +41,6 @@ function register(req, res, roleid) {
 }
 
 router.post("/register/staff", async (req, res, next) => {
-  console.log(req.body);
   const query = await pool.query(
     `SELECT roleID FROM Roles WHERE Role = 'Teacher'`
   );
@@ -116,9 +115,7 @@ router.post("/authenticate/staff", async (req, res, next) => {
 
 router.get("/myself", async (req, res, next) => {
   // Retrieve authorization header and retrieve the JWT from it.
-  console.log(req);
   const token = req.headers.authorization.split(" ")[1];
-  console.log("test");
 
   jwt.verify(token, config.JWT_SECRET, async (err, decoded) => {
     if (err) {

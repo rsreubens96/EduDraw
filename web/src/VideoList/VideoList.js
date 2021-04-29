@@ -6,7 +6,7 @@ const wrtc = require("wrtc");
 
 const StyledVideo = styled.video`
   height: 50px;
-  width: 50px;
+  width: 44px;
   background-image: url(${process.env.PUBLIC_URL + "/user-solid.svg"});
 `;
 const Video = ({ index, peer, peersRef }) => {
@@ -31,14 +31,18 @@ const Video = ({ index, peer, peersRef }) => {
     <div className="card">
       <div className="text-center">
         <StyledVideo alt="user-solid" playsInline autoPlay ref={ref} />;
-        <h1>test name</h1>
+        <p>Name: {peer.firstName + " " + peer.lastName}</p>
+        <p>Role: {peer.role}</p>
       </div>
     </div>
   );
   // return null;
 };
 
-const VideoList = ({ socket, roomId }) => {
+const VideoList = (props) => {
+  const socket = props.socket;
+  const roomId = props.roomId;
+  const user = props.user;
   const peersRef = useRef([]);
   const [peers, setPeers] = useState([]);
   const userVideo = useRef();
@@ -54,32 +58,36 @@ const VideoList = ({ socket, roomId }) => {
         socket.emit("getAllClients", { roomId });
 
         socket.on("receiveClients", (clients) => {
-          console.log("Receiving clients and joining is" + joining.current);
-          console.log(clients);
-          clients = clients.filter((client) => client !== socket.id);
+          clients = clients.filter((client) => client.socketID !== socket.id);
           const peers = [];
           if (joining.current) {
-            clients.forEach((clientID) => {
-              const peer = createPeer(clientID, socket.id, stream);
+            clients.forEach((client) => {
+              const peer = createPeer(client.socketID, socket.id, stream);
               peersRef.current.push({
-                peerID: clientID,
+                peerID: client.socketID,
+                firstName: client.firstName,
+                lastName: client.lastName,
+                role: client.role,
                 peer,
               });
-              peers.push(clientID);
+              peers.push(client.socketID);
             });
             joining.current = false;
           }
           setPeers(peers);
           console.log("MY ID IS " + socket.id);
           console.log("Joining is " + joining.current);
-          console.log(peers);
         });
 
         socket.on("userJoined", (data) => {
-          console.log("USER JOIN TRIGGERED AND CALLER ID IS " + data.callerID);
+          console.log("USER JOINED");
+          console.log(data);
           const peer = addPeer(data.signal, data.callerID, stream);
           peersRef.current.push({
             peerID: data.callerID,
+            firstName: data.firstName,
+            lastName: data.lastName,
+            role: data.role,
             peer,
           });
           setPeers((users) => [...users, peer]);
@@ -99,6 +107,8 @@ const VideoList = ({ socket, roomId }) => {
       trickle: false,
       reconnectTimer: 100,
       iceTransportPolicy: "relay",
+
+      //STUN/TURN SERVER CONFIG
       // config: {
       //   iceServers: [
       //     {
@@ -121,14 +131,7 @@ const VideoList = ({ socket, roomId }) => {
       socket.emit("signalToClient", { receiverID, callerID, signal });
     });
 
-    peer.on("error", (err) => {
-      console.log(err);
-    });
-
-    // setVideos((videos) => [
-    //   ...videos,
-    //   <StyledVideo playsInline autoPlay ref={stream}></StyledVideo>,
-    // ]);
+    peer.on("error", (err) => {});
 
     return peer;
   };
@@ -139,6 +142,8 @@ const VideoList = ({ socket, roomId }) => {
       trickle: false,
       reconnectTimer: 100,
       iceTransportPolicy: "relay",
+
+      //STUN/TURN SERVER CONFIG
       // config: {
       //   iceServers: [
       //     {
@@ -161,29 +166,9 @@ const VideoList = ({ socket, roomId }) => {
       socket.emit("returningSignal", { signal, callerID });
     });
 
-    peer.on("error", (err) => {
-      console.log(err);
-    });
-
     peer.signal(incomingSignal);
     return peer;
   };
-
-  // const RenderPeers = () => {
-  //   console.log("RENDER PEERS");
-  //   console.log(videos);
-  //   if (videos.current.length > 0) {
-  //     console.log("Render peers 2");
-  //     // peersRef.current.map((peer, index) => {
-  //     //   return <Video key={index} peer={peer} />;
-  //     // });
-  //     videos.current.map((video) => {
-  //       console.log(video);
-  //       return video;
-  //     });
-  //   }
-  //   return null;
-  // };
 
   return (
     <div>
@@ -192,7 +177,8 @@ const VideoList = ({ socket, roomId }) => {
           <div className="card">
             <div className="text-center">
               <StyledVideo playsInline muted ref={userVideo} autoPlay />
-              <h1>test name</h1>
+              <p>Name: {user.firstName + " " + user.lastName}</p>
+              <p>Role: {user.role}</p>
             </div>
           </div>
         </Col>

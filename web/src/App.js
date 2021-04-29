@@ -11,8 +11,44 @@ import Profile from "./Profile/Profile";
 import RoomMain from "./Room/RoomMain";
 import CreateRoom from "./Room/CreateRoomForm";
 import Classroom from "./Classroom/Classroom";
+import jwt from "jwt-decode";
+import axios from "axios";
 
 export default function App() {
+  const [userInfo, setUserInfo] = useState({});
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token === null || token === "undefined" || typeof token != "string") {
+      return;
+    }
+    console.log(jwt(token));
+    console.log(token);
+    axios
+      .get("http://localhost:4000/myself", {
+        headers: { Authorization: "Bearer " + token },
+      })
+      .then((res) => {
+        console.log(res);
+        if (res.status === 200) {
+          setUserInfo({
+            firstName:
+              res.data.firstname.charAt(0).toUpperCase() +
+              res.data.firstname.slice(1),
+            lastName:
+              res.data.lastname.charAt(0).toUpperCase() +
+              res.data.lastname.slice(1),
+            email: res.data.email,
+            role: jwt(token).user.role,
+          });
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      })
+      .then(() => {});
+  }, []);
+
   return (
     <div className="App">
       <Navbar></Navbar>
@@ -52,7 +88,7 @@ export default function App() {
               <Classroom />
             </Route>
             <Route exact path="/rooms/:roomId">
-              <Classroom />
+              <Classroom user={userInfo} />
             </Route>
           </Switch>
         </div>
