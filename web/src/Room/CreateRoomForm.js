@@ -51,7 +51,7 @@ const CreateRoomForm = (props) => {
           }
           return history.push({
             pathname: `/rooms/${roomId}`,
-            state: { roomId: roomId },
+            state: { roomId: roomId, roomName: data.roomName },
           });
         } else {
           setCreateFailed(false);

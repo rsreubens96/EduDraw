@@ -40,13 +40,14 @@ const RoomMain = () => {
       })
       .then((res) => {
         if (res.status === 200) {
+          console.log("ROOM NAME");
           // If room does not exist
           if (res.data.error) {
             return setError(res.data.error);
           }
           return history.push({
             pathname: `/rooms/${roomId}`,
-            state: { roomId: roomId },
+            state: { roomId: roomId, roomName: res.data.roomname },
           });
         }
       })

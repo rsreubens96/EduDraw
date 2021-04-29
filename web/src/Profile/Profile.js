@@ -84,6 +84,12 @@ const Profile = () => {
             </Col>
             <Col>{name}</Col>
           </Row>
+          <Row>
+            <Col>
+              <b>Email</b>
+            </Col>
+            <Col>{userInfo.email}</Col>
+          </Row>
         </Container>
       </div>
 

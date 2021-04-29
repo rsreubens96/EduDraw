@@ -123,7 +123,7 @@ router.get("/myself", async (req, res, next) => {
     }
     const userId = decoded.user.userid;
     query = pool.query(
-      `SELECT firstname, lastname, email from Users where userid = $1`,
+      `SELECT firstname, lastname, email, dateofbirth from Users where userid = $1`,
       [userId],
       (err, results) => {
         if (err) {

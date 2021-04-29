@@ -165,7 +165,7 @@ app.get("/rooms/:roomId", (req, res, next) => {
           return res.status(500).send({ error: "Oops, something went wrong." });
         }
         if (results.rows.length > 0) {
-          return res.status(200).send();
+          return res.status(200).send(results.rows[0]);
         }
         return res.status(200).send({
           error: "A room with that ID does not exist. Please try again.",
