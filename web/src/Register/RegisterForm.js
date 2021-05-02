@@ -15,6 +15,7 @@ const RegisterForm = (props) => {
   });
   const [registered, setRegistered] = useState(false);
   const history = useHistory();
+  const [error, setError] = useState("");
 
   const handleChange = (event) => {
     const { id, value } = event.target;
@@ -26,7 +27,8 @@ const RegisterForm = (props) => {
   };
 
   const handleSubmit = (e) => {
-    if (props.isStudent) {
+    if (!validateFields()) {
+      return;
     }
     setData((data) => ({
       ...data,
@@ -64,9 +66,45 @@ const RegisterForm = (props) => {
     return <div></div>;
   };
 
+  const HandleError = () => {
+    if (error.length > 0) {
+      return <p className="text-danger text-center">{error}</p>;
+    }
+    return null;
+  };
+
+  const validateFields = () => {
+    let errors = [];
+    if (data.forename === "") {
+      errors.push("Forename cannot be empty");
+    }
+    if (data.surname === "") {
+      errors.push(" Surname cannot be empty");
+    }
+    if (data.email === "") {
+      errors.push(" Email cannot be empty");
+    }
+    if (data.dob === "") {
+      errors.push(" Date of birth cannot be empty");
+    }
+    if (data.password === "") {
+      errors.push(" Password cannot be empty");
+    }
+    if (data.password.length < 6) {
+      errors.push(" Password must be greater than 5 characters");
+    }
+
+    if (errors.length > 0) {
+      setError(errors.toString());
+      return false;
+    }
+    return true;
+  };
+
   return (
     <Container>
       <Form className="login-form">
+        <HandleError></HandleError>
         {/* <h1 className="text-center">
         <span className="font-weight-bold">EduDraw</span>
       </h1>

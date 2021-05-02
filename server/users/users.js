@@ -42,7 +42,7 @@ function register(req, res, roleid) {
 
 router.post("/register/staff", async (req, res, next) => {
   const query = await pool.query(
-    `SELECT roleID FROM Roles WHERE Role = 'Teacher'`
+    `SELECT roleID FROM Roles WHERE Role = 'Staff'`
   );
   const { roleid } = query.rows[0];
   register(req, res, roleid);

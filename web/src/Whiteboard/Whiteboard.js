@@ -1,14 +1,22 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Sketch from "react-p5";
 import "./Whiteboard.css";
-import { GithubPicker } from "react-color";
+import { CompactPicker } from "react-color";
 import { Container } from "react-bootstrap";
 
-const Whiteboard = ({ roomId, socket }) => {
-  let color = "#000000";
+const Whiteboard = ({ roomId, socket, user }) => {
+  const [color, setColor] = useState("#000000");
+  const [strokeWeight, setStrokeWeight] = useState(5);
   let background = "#FFFFFF";
-  let strokeWeight = 20;
   let isErasing = false;
+  const [canDraw, setCanDraw] = useState(false);
+
+  useEffect(() => {
+    console.log("ROLE");
+    if (user.role === "Staff") {
+      setCanDraw(true);
+    }
+  }, [user]);
 
   const setup = (p5, canvasParentRef) => {
     // use parent to render the canvas in this ref
@@ -21,6 +29,9 @@ const Whiteboard = ({ roomId, socket }) => {
   };
 
   const touchMoved = (p5) => {
+    if (!canDraw) {
+      return;
+    }
     const mouseX = p5.mouseX;
     const mouseY = p5.mouseY;
     const pmouseX = p5.pmouseX;
@@ -37,6 +48,11 @@ const Whiteboard = ({ roomId, socket }) => {
     });
     return false;
   };
+
+  socket.on("toggleDrawingPrivileges", (value) => {
+    console.log(value);
+    setCanDraw(value);
+  });
 
   socket.on("erasing", (erase) => {
     if (!erase.erase) {
@@ -55,11 +71,15 @@ const Whiteboard = ({ roomId, socket }) => {
     window.p5.strokeWeight(strokeWeight);
   });
 
+  socket.on("clear", () => {
+    window.p5.clear();
+  });
+
   // socketRef.current.on("drawing", (data) => {
   //   console.log(this.p5);
   // });
   const handleColourChange = (e) => {
-    color = e.hex;
+    setColor(e.hex);
     window.p5.stroke(e.hex);
   };
 
@@ -82,73 +102,104 @@ const Whiteboard = ({ roomId, socket }) => {
     window.p5.erase();
   };
 
-  const handleStrokeSize = (e) => {
-    strokeWeight = 160;
-    window.p5.strokeWeight(160);
+  const handleStrokeSize = (e, size) => {
+    setStrokeWeight(size);
+    window.p5.strokeWeight(strokeWeight);
   };
 
   const handleClear = (e) => {
+    socket.emit("clear");
     window.p5.clear();
   };
 
   return (
     <Container>
       <div>
-        <div
-          className="btn-toolbar"
-          id="toolbar"
-          role="toolbar"
-          aria-label="Toolbar with button groups"
-        >
-          <div className="btn-group mr-2" role="group" aria-label="First group">
-            <GithubPicker color={color} onChange={handleColourChange} />
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={handlePencil}
-            >
-              Pencil
-            </button>
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={handleEraser}
-            >
-              Eraser
-            </button>
-            <button
-              type="button"
-              className="btn btn-danger"
-              onClick={handleClear}
-            >
-              Clear
-            </button>
-          </div>
+        {canDraw && (
           <div
-            className="btn-group mr-2"
-            role="group"
-            aria-label="Second group"
+            className="btn-toolbar"
+            id="toolbar"
+            role="toolbar"
+            aria-label="Toolbar with button groups"
           >
-            <button type="button" className="btn btn-secondary">
-              5
-            </button>
-            <button type="button" className="btn btn-secondary">
-              6
-            </button>
-            <button type="button" className="btn btn-secondary">
-              7
-            </button>
-          </div>
-          <div className="btn-group" role="group" aria-label="Third group">
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={handleStrokeSize}
+            <div
+              className="btn-group mr-2"
+              role="group"
+              aria-label="First group"
             >
-              8
-            </button>
+              <CompactPicker color={color} onChange={handleColourChange} />
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={handlePencil}
+              >
+                Pencil
+              </button>
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={handleEraser}
+              >
+                Eraser
+              </button>
+              <button
+                type="button"
+                className="btn btn-danger"
+                onClick={handleClear}
+              >
+                Clear
+              </button>
+            </div>
+            <div
+              className="btn-group mr-2"
+              role="group"
+              aria-label="Second group"
+            >
+              <button
+                type="button"
+                onClick={(e) => handleStrokeSize(e, 5)}
+                className="btn btn-secondary"
+              >
+                1
+              </button>
+              <button
+                type="button"
+                onClick={(e) => handleStrokeSize(e, 15)}
+                className="btn btn-secondary"
+              >
+                2
+              </button>
+              <button
+                type="button"
+                onClick={(e) => handleStrokeSize(e, 25)}
+                className="btn btn-secondary"
+              >
+                3
+              </button>
+              <button
+                type="button"
+                onClick={(e) => handleStrokeSize(e, 35)}
+                className="btn btn-secondary"
+              >
+                4
+              </button>
+              <button
+                type="button"
+                onClick={(e) => handleStrokeSize(e, 45)}
+                className="btn btn-secondary"
+              >
+                5
+              </button>
+              <button
+                type="button"
+                onClick={(e) => handleStrokeSize(e, 1000)}
+                className="btn btn-secondary"
+              >
+                BIG
+              </button>
+            </div>
           </div>
-        </div>
+        )}
         <div id="sketch">
           <Sketch setup={setup} touchMoved={touchMoved} />
         </div>

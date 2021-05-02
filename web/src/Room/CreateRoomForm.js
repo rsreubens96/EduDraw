@@ -32,7 +32,27 @@ const CreateRoomForm = (props) => {
     return <p className="text-danger text-center">{error}</p>;
   };
 
+  const validateFields = () => {
+    let errors = [];
+    if (data.roomName === "") {
+      errors.push("Room name cannot be empty");
+    }
+    if (data.roomDescription === "") {
+      errors.push(" Room description cannot be empty");
+    }
+
+    if (errors.length > 0) {
+      setError(errors.toString());
+      return false;
+    }
+    return true;
+  };
+
   const handleCreate = (e) => {
+    if (!validateFields()) {
+      setCreateFailed(true);
+      return;
+    }
     let roomId = v4();
     axios
       .post("http://localhost:4000/rooms/create-room", {

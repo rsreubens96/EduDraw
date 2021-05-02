@@ -7,7 +7,7 @@ const StaffLoginStrategy = new LocalStrategy(
   { usernameField: "email", passwordField: "password" },
   async (username, password, done) => {
     const query = await pool.query(
-      `SELECT roleID FROM Roles WHERE Role = 'Teacher'`
+      `SELECT roleID FROM Roles WHERE Role = 'Staff'`
     );
     const { roleid } = query.rows[0];
     pool.query(

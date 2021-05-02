@@ -25,12 +25,11 @@ const PORT = process.env.port || 4000;
 let rooms = {};
 
 io.on("connection", (socket) => {
-  let socketRoomID = "hi";
+  let socketRoomID = "";
   socket.on("hello", (data) => {
-    console.log("CONNECTION");
+    console.log(data);
     socket.join(data.roomID);
     socketRoomID = data.roomID;
-    console.log("AFTER");
 
     let user = {
       firstName: data.firstName,
@@ -45,29 +44,40 @@ io.on("connection", (socket) => {
     }
     rooms[data.roomID][socket.id] = user;
     // console.log(rooms[data.roomID]["asdasdasd"]);
-    console.log(rooms);
+    console.log("ASDHOUSDH");
+    io.in(data.roomID).clients((client) => {
+      console.log(client);
+    });
   });
 
   socket.on("drawing", (data) => {
+    console.log(socketRoomID);
     io.to(socketRoomID).emit("drawing", data);
+  });
+
+  socket.on("clear", () => {
+    io.to(socketRoomID).emit("clear");
   });
 
   socket.on("erasing", (data) => {
     io.to(socketRoomID).emit("erasing", data);
   });
 
+  socket.on("toggleDrawingPrivileges", (data) => {
+    io.to(data.peerID).emit("toggleDrawingPrivileges", data.value);
+  });
+
   // WebRTC stuff
   socket.on("getAllClients", (data) => {
-    console.log("GET ALL CLINETS");
-    console.log(socketRoomID);
+    // console.log("GET ALL CLINETS");
     io.in(socketRoomID).clients((err, clients) => {
       const dataToSend = [];
       clients.forEach((client) => {
-        console.log(rooms[socketRoomID][client]);
+        // console.log(rooms[socketRoomID][client]);
         dataToSend.push(rooms[socketRoomID][client]);
       });
-      console.log("DATA TO SEND IS");
-      console.log(dataToSend);
+      // console.log("DATA TO SEND IS");
+      // console.log(dataToSend);
       if (clients.length > 0) {
         io.to(socketRoomID).emit("receiveClients", dataToSend);
       }

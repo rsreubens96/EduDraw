@@ -12,6 +12,7 @@ import RoomMain from "./Room/RoomMain";
 import CreateRoom from "./Room/CreateRoomForm";
 import Classroom from "./Classroom/Classroom";
 import jwt from "jwt-decode";
+import NotFound from "./NotFound/NotFound";
 import axios from "axios";
 
 export default function App() {
@@ -22,8 +23,6 @@ export default function App() {
     if (token === null || token === "undefined" || typeof token != "string") {
       return;
     }
-    console.log(jwt(token));
-    console.log(token);
     axios
       .get("http://localhost:4000/myself", {
         headers: { Authorization: "Bearer " + token },
@@ -89,6 +88,9 @@ export default function App() {
             </Route>
             <Route exact path="/rooms/:roomId">
               <Classroom user={userInfo} />
+            </Route>
+            <Route exact path="*">
+              <NotFound></NotFound>
             </Route>
           </Switch>
         </div>

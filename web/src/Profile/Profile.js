@@ -32,6 +32,7 @@ const Profile = () => {
               res.data.lastname.slice(1),
             email: res.data.email,
             role: jwt(token).user.role,
+            dateofbirth: res.data.dateofbirth,
           });
         }
       })
@@ -47,13 +48,19 @@ const Profile = () => {
 
   if (_.isEmpty(userInfo)) {
     return (
-      <Spinner animation="border" role="status">
+      <Spinner className="centered" animation="border" role="status">
         <span className="sr-only">Loading...</span>
       </Spinner>
     );
   }
 
   const name = userInfo.firstName + " " + userInfo.lastName;
+
+  const _calculateAge = (dateofbirth) => {
+    console.log(dateofbirth);
+    const ageDifference = Date.now() - new Date(dateofbirth);
+    return Math.abs(new Date(ageDifference).getUTCFullYear() - 1970);
+  };
 
   return (
     <Container className="text-center">
@@ -82,7 +89,7 @@ const Profile = () => {
             <Col>
               <b>Age</b>
             </Col>
-            <Col>{name}</Col>
+            <Col>{_calculateAge(userInfo.dateofbirth)}</Col>
           </Row>
           <Row>
             <Col>

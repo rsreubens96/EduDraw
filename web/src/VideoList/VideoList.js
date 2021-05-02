@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Container, Row, Col } from "react-bootstrap";
+import { Container, Row, Col, Button } from "react-bootstrap";
 import styled from "styled-components";
 const Peer = require("simple-peer");
 const wrtc = require("wrtc");
@@ -9,8 +9,9 @@ const StyledVideo = styled.video`
   width: 44px;
   background-image: url(${process.env.PUBLIC_URL + "/user-solid.svg"});
 `;
-const Video = ({ index, peer, peersRef }) => {
+const Video = ({ index, peer, peersRef, socket, role }) => {
   const ref = useRef();
+  const [buttonClicked, setButtonClicked] = useState(false);
 
   // const video = <StyledVideo alt="user-solid" playsInline autoPlay ref={ref} />;
 
@@ -27,12 +28,46 @@ const Video = ({ index, peer, peersRef }) => {
     });
   }, []);
 
+  const handleDrawingPrivilege = () => {
+    console.log("Toggling drawing privileges");
+    console.log(peer.peerID);
+    if (buttonClicked) {
+      socket.emit("toggleDrawingPrivileges", {
+        peerID: peer.peerID,
+        value: false,
+      });
+      return setButtonClicked(false);
+    }
+    socket.emit("toggleDrawingPrivileges", {
+      peerID: peer.peerID,
+      value: true,
+    });
+    return setButtonClicked(true);
+  };
+
+  const EnableDrawingButton = () => {
+    if (role !== "Staff") {
+      return null;
+    }
+
+    return !buttonClicked ? (
+      <Button variant="success" onClick={handleDrawingPrivilege}>
+        Give Drawing Privileges
+      </Button>
+    ) : (
+      <Button variant="danger" onClick={handleDrawingPrivilege}>
+        Rescind Drawing Privileges
+      </Button>
+    );
+  };
+
   return (
     <div className="card">
       <div className="text-center">
-        <StyledVideo alt="user-solid" playsInline autoPlay ref={ref} />;
+        <StyledVideo alt="user-solid" playsInline autoPlay ref={ref} />
         <p>Name: {peer.firstName + " " + peer.lastName}</p>
         <p>Role: {peer.role}</p>
+        <EnableDrawingButton />
       </div>
     </div>
   );
@@ -185,7 +220,13 @@ const VideoList = (props) => {
         {peersRef.current.map((peer, index) => {
           return (
             <Col>
-              <Video key={index} peer={peer} peersRef={peersRef} />
+              <Video
+                key={index}
+                peer={peer}
+                peersRef={peersRef}
+                socket={socket}
+                role={props.user.role}
+              />
             </Col>
           );
         })}

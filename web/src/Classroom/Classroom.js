@@ -31,14 +31,16 @@ const Classroom = (props) => {
     setRoomId(location.state.roomId);
     setRoomName(location.state.roomName);
     console.log("Saying hello");
-    socket.current.emit("hello", {
-      roomID: roomId,
-      firstName: props.user.firstName,
-      lastName: props.user.lastName,
-      role: props.user.role,
-    });
-    setLoading(false);
-  }, [props.user]);
+    if (roomId !== "") {
+      socket.current.emit("hello", {
+        roomID: roomId,
+        firstName: props.user.firstName,
+        lastName: props.user.lastName,
+        role: props.user.role,
+      });
+      setLoading(false);
+    }
+  }, [props.user, roomId]);
   // console.log(location.state.detail); // result: 'some_value'
 
   console.log("ROOM ID");
@@ -65,7 +67,11 @@ const Classroom = (props) => {
         <div style={{ height: "1000px" }}>
           <div style={{ display: "inline-block" }}>
             {!isLoading && (
-              <Whiteboard socket={socket.current} roomId={roomId} />
+              <Whiteboard
+                socket={socket.current}
+                roomId={roomId}
+                user={props.user}
+              />
             )}
           </div>
           <div>
