@@ -23,17 +23,13 @@ const RegisterForm = (props) => {
       ...data,
       [id]: value,
     }));
-    console.log(data);
   };
 
   const handleSubmit = (e) => {
+    //If there are errors do not submit
     if (!validateFields()) {
       return;
     }
-    setData((data) => ({
-      ...data,
-      hasRegistered: true,
-    }));
     const url = props.isStudent ? "/register/student" : "/register/staff";
     axios
       .post("http://localhost:4000" + url, {
@@ -44,15 +40,26 @@ const RegisterForm = (props) => {
         password: data.password,
       })
       .then((response) => {
+        //If the backend has sent an error with the response, display it on the screen
+        if (response.data.error) {
+          return setError(response.data.error);
+        }
+        //If the response status is 200 then the POST was successful.
         if (response.status === 200) {
           setRegistered(true);
           const url = props.isStudent
             ? "/authenticate/student"
             : "/authenticate/staff";
-          history.push(url);
+          //Redirect the page to the relevant URL based on if it is a student or staff
+          history.push({
+            pathname: url,
+            state: { registered: true },
+          });
+          return history.go();
         }
       })
       .catch((error) => {
+        // any errors if they exist
         console.log(error);
       });
   };
@@ -60,7 +67,6 @@ const RegisterForm = (props) => {
   const HasRegistered = () => {
     console.log(data.hasRegistered);
     if (registered) {
-      console.log("I AM HERE");
       return <div className="text-success">Registration successful!</div>;
     }
     return <div></div>;
@@ -83,6 +89,13 @@ const RegisterForm = (props) => {
     }
     if (data.email === "") {
       errors.push(" Email cannot be empty");
+    }
+    if (
+      !new RegExp("^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+$").test(
+        data.email
+      )
+    ) {
+      errors.push(" Please enter a valid email.");
     }
     if (data.dob === "") {
       errors.push(" Date of birth cannot be empty");

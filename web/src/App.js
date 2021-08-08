@@ -14,6 +14,7 @@ import Classroom from "./Classroom/Classroom";
 import jwt from "jwt-decode";
 import NotFound from "./NotFound/NotFound";
 import axios from "axios";
+import Unauthorized from "./Unauthorized/Unauthorized";
 
 export default function App() {
   const [userInfo, setUserInfo] = useState({});
@@ -78,16 +79,19 @@ export default function App() {
               <Profile />
             </Route>
             <Route exact path="/rooms">
-              <RoomMain />
+              <RoomMain user={userInfo} />
             </Route>
             <Route exact path="/rooms/create-room">
-              <CreateRoom />
+              <CreateRoom user={userInfo} />
             </Route>
             <Route exact path="/rooms/test">
               <Classroom />
             </Route>
             <Route exact path="/rooms/:roomId">
               <Classroom user={userInfo} />
+            </Route>
+            <Route exact path="/unauthorized">
+              <Unauthorized />
             </Route>
             <Route exact path="*">
               <NotFound></NotFound>

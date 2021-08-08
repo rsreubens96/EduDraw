@@ -72,7 +72,6 @@ const Profile = () => {
           style={{ height: "200px", width: "100%" }}
         />
         <Container style={{ padding: "20px" }}>
-          <Button>Upload a picture</Button>
           <Row>
             <Col>
               <b>Full Name</b>
@@ -99,8 +98,6 @@ const Profile = () => {
           </Row>
         </Container>
       </div>
-
-      <Button>Edit Profile</Button>
     </Container>
   );
 };

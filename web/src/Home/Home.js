@@ -7,8 +7,8 @@ function Home() {
     <Jumbotron className="text-center">
       .<h1>Welcome to EduDraw!</h1>
       <p>
-        This is a simple hero unit, a simple jumbotron-style component for
-        calling extra attention to featured content or information.
+        EduDraw is an online learning platform that allows you to share a
+        collaborative whiteboard with your students in a room.
       </p>
       <p>
         <Button variant="primary" href="/register/">

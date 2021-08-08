@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { Button, Form, InputGroup, FormControl } from "react-bootstrap";
 import { useState } from "react";
@@ -15,6 +15,16 @@ const CreateRoomForm = (props) => {
     roomDescription: "",
     // roomPassword: "",
   });
+
+  useEffect(() => {
+    if (props.user.role === undefined) {
+      return;
+    }
+    if (props.user.role !== "Staff") {
+      history.push("/unauthorized");
+      history.go();
+    }
+  }, [props.user]);
 
   const handleChange = (event) => {
     const { id, value } = event.target;
@@ -71,7 +81,11 @@ const CreateRoomForm = (props) => {
           }
           return history.push({
             pathname: `/rooms/${roomId}`,
-            state: { roomId: roomId, roomName: data.roomName },
+            state: {
+              roomId: roomId,
+              roomName: data.roomName,
+              roomDescription: data.roomDescription,
+            },
           });
         } else {
           setCreateFailed(false);

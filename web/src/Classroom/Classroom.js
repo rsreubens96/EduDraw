@@ -16,6 +16,7 @@ const Classroom = (props) => {
   const [roomId, setRoomId] = useState("");
   const [copied, setCopied] = useState(false);
   const [roomName, setRoomName] = useState("");
+  const [roomDescription, setRoomDescription] = useState("");
   useEffect(() => {
     if (location.state === undefined) {
       history.push("/rooms/");
@@ -30,6 +31,7 @@ const Classroom = (props) => {
     socket.current = io("http://localhost:4000");
     setRoomId(location.state.roomId);
     setRoomName(location.state.roomName);
+    setRoomDescription(location.state.roomDescription);
     console.log("Saying hello");
     if (roomId !== "") {
       socket.current.emit("hello", {
@@ -43,12 +45,11 @@ const Classroom = (props) => {
   }, [props.user, roomId]);
   // console.log(location.state.detail); // result: 'some_value'
 
-  console.log("ROOM ID");
-  console.log(roomId);
   return (
     <div>
       <Jumbotron>
-        <h1 className="display-4 text-center">{roomName}</h1>
+        <h1 className="display-3 text-center">{roomName}</h1>
+        <h2 className="text-center">{roomDescription}</h2>
         {!isLoading && (
           <p className="text-center">
             Room ID: {roomId}

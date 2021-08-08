@@ -190,13 +190,6 @@ const Whiteboard = ({ roomId, socket, user }) => {
               >
                 5
               </button>
-              <button
-                type="button"
-                onClick={(e) => handleStrokeSize(e, 1000)}
-                className="btn btn-secondary"
-              >
-                BIG
-              </button>
             </div>
           </div>
         )}

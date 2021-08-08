@@ -21,7 +21,7 @@ const Video = ({ index, peer, peersRef, socket, role }) => {
     });
 
     peer.peer.on("close", () => {
-      ref.current.srcObject = null;
+      peer.peer.destroy();
       if (peersRef.current != null) {
         peersRef.current.splice(index, 1);
       }
@@ -47,6 +47,9 @@ const Video = ({ index, peer, peersRef, socket, role }) => {
 
   const EnableDrawingButton = () => {
     if (role !== "Staff") {
+      return null;
+    }
+    if (peer.role !== "Student") {
       return null;
     }
 

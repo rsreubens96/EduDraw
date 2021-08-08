@@ -51,11 +51,13 @@ io.on("connection", (socket) => {
   });
 
   socket.on("drawing", (data) => {
-    console.log(socketRoomID);
     io.to(socketRoomID).emit("drawing", data);
   });
 
   socket.on("clear", () => {
+    io.in(socketRoomID).clients((err, clients) => {
+      console.log(clients);
+    });
     io.to(socketRoomID).emit("clear");
   });
 
@@ -104,16 +106,27 @@ io.on("connection", (socket) => {
     });
   });
 
-  socket.on("disconnect", (data) => {
+  socket.on("disconnecting", (data) => {
+    console.log("DISCONNECT");
     console.log(socket.id + " has disconnected");
-    io.in(socketRoomID).clients((err, clients) => {
-      if (clients.length > 0) {
-        io.to(socketRoomID).emit("receiveClients", clients);
-      }
-    });
     if (rooms[socketRoomID]) {
       delete rooms[socketRoomID][socket.id];
     }
+    io.in(socketRoomID).clients((err, clients) => {
+      const dataToSend = [];
+      clients.forEach((client) => {
+        console.log(client);
+        if (rooms[socketRoomID][client] !== undefined) {
+          dataToSend.push(rooms[socketRoomID][client]);
+        }
+      });
+      console.log(dataToSend);
+      // console.log("DATA TO SEND IS");
+      // console.log(dataToSend);
+      if (clients.length > 0) {
+        io.to(socketRoomID).emit("receiveClients", dataToSend);
+      }
+    });
   });
 });
 
@@ -125,8 +138,10 @@ const users = require("./users/users");
 app.use(users);
 
 app.post("/rooms/create-room/", (req, res, next) => {
+  //Extract the room details from the request body
   const { roomUUID, roomName, roomDescription } = req.body;
   pool.query(
+    //SQL query to check if the room already exists in the Rooms table
     `SELECT * FROM Rooms WHERE roomname = $1`,
     [roomName],
     async (err, results) => {
@@ -134,11 +149,13 @@ app.post("/rooms/create-room/", (req, res, next) => {
         return next(err);
       }
       if (results.rows.length > 0) {
+        //If the room already exists, send back an error to the frontend so they can display it and try again
         return res.status(200).send({
           error:
             "A room with that name already exists. Please select a new room name.",
         });
       } else {
+        //If the room does not exist, insert it into the table and return a 200 ok.
         pool.query(
           `INSERT INTO Rooms (roomuuid, roomname, roomdescription)
       VALUES ($1, $2, $3)`,

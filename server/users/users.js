@@ -7,8 +7,10 @@ const jwt = require("jsonwebtoken");
 const config = require("dotenv").config().parsed;
 
 function register(req, res, roleid) {
+  //extract JSON data from the request body
   let { firstName, lastName, email, password, dateOfBirth } = req.body;
   pool.query(
+    //Check if an email is already registered to the email specified
     `SELECT * FROM Users WHERE email = $1`,
     [email],
     async (err, results) => {
@@ -17,10 +19,12 @@ function register(req, res, roleid) {
       }
 
       if (results.rows.length > 0) {
+        //If email is already registered, send back an error
         return res.status(200).send({
           error: "Email already registered. Please select another email.",
         });
       } else {
+        //If email is not registered, hash the password and insert user into database
         let hashedPassword = await bcrypt.hash(password, 10);
         pool.query(
           `INSERT INTO Users (firstName, lastName, email, password, dateOfBirth, roleID)

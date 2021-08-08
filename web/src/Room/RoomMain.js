@@ -5,7 +5,7 @@ import "./RoomMain.css";
 import axios from "axios";
 import { useHistory } from "react-router-dom";
 
-const RoomMain = () => {
+const RoomMain = (props) => {
   const [roomId, setRoomId] = useState("");
   const [error, setError] = useState("");
   const history = useHistory();
@@ -28,7 +28,6 @@ const RoomMain = () => {
     if (!regex.test(roomId)) {
       return setError("The room ID entered is not a valid room ID.");
     }
-    console.log("hi");
     const token = localStorage.getItem("token");
     // If user is not logged in
     if (token === null) {
@@ -47,7 +46,11 @@ const RoomMain = () => {
           }
           return history.push({
             pathname: `/rooms/${roomId}`,
-            state: { roomId: roomId, roomName: res.data.roomname },
+            state: {
+              roomId: roomId,
+              roomName: res.data.roomname,
+              roomDescription: res.data.roomdescription,
+            },
           });
         }
       })
@@ -78,9 +81,11 @@ const RoomMain = () => {
             </Button>
           </div>
           <div style={{ textAlign: "center", marginTop: "20px" }}>
-            <Button className="btn-lg" href="/rooms/create-room">
-              Create Room
-            </Button>
+            {props.user.role === "Staff" && (
+              <Button className="btn-lg" href="/rooms/create-room">
+                Create Room
+              </Button>
+            )}
           </div>
         </div>
       </Container>
